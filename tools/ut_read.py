@@ -123,7 +123,7 @@ if __name__ == '__main__':
         wait_conn(autopilot)
 
         command = lambda ut : autopilot.mav.named_value_float_send(
-            int(time.time() * 1e6),
+            int(time.time() * 1e3), # Unix time (milliseconds)
             'UTGauge',
             ut.get_value()
         )
