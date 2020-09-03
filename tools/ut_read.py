@@ -96,10 +96,11 @@ class UTGauge(object):
 
 def wait_conn(autopilot):
     """ Sends a ping to develop UDP communication and waits for a response. """
+    global boot_time
     msg = None
     while not msg:
         autopilot.mav.ping_send(
-            int(time.time() * 1e6), # Unix time (microseconds)
+            int((time.time() - boot_time) * 1e6), # Unix time since boot (microseconds)
             0, # Ping number
             0, # Request ping of all systems
             0  # Request ping of all components
@@ -120,12 +121,14 @@ if __name__ == '__main__':
         from pymavlink import mavutil
         # establish connection on UDP port 9000
         autopilot = mavutil.mavlink_connection('udpout:0.0.0.0:9000')
+        # set now as the 'boot time'
+        boot_time = time.time()
         # wait for connection confirmation
         wait_conn(autopilot)
 
         def command(ut):
             autopilot.mav.named_value_float_send(
-                int(time.time() * 1e3), # Unix time (milliseconds)
+                int((time.time() - boot_time) * 1e3), # Unix time since boot (milliseconds)
                 'UTGauge',
                 ut.get_value()
             )
