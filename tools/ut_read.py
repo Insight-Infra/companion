@@ -5,7 +5,7 @@ import serial, time
 class UTGauge(object):
     units = ['mm', '"']
 
-    default_v = 6400.0 # m/s
+    DEFAULT_V = 6400.0 # m/s
     material = 'core ten steel'
 
     material_v = {
@@ -46,7 +46,7 @@ class UTGauge(object):
 
     def set_material(self, material):
         ''' Sets the material as specified. '''
-        self._conversion = self.material_v[material] / self.default_v
+        self._conversion = self.material_v[material] / self.DEFAULT_V
 
     def __enter__(self):
         ''' Entry to a context - start serial communication. '''
@@ -90,7 +90,7 @@ class UTGauge(object):
         if not string_result:
             return result
 
-        return str(result) + ' ' + units[imperial] \
+        return str(result) + ' ' + self.units[imperial] \
               + ' - ' + str(echo_count) + ' echoes'
 
 
@@ -113,7 +113,8 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 2:
         # operating manually - print meaningful string output
-        command = lambda ut : print(ut.get_value(string_result=True))
+        def command(ut):
+            print(ut.get_value(string_result=True))
     else:
         # operating automatically - connect to autopilot and transmit readings
         from pymavlink import mavutil
@@ -122,11 +123,12 @@ if __name__ == '__main__':
         # wait for connection confirmation
         wait_conn(autopilot)
 
-        command = lambda ut : autopilot.mav.named_value_float_send(
-            int(time.time() * 1e3), # Unix time (milliseconds)
-            'UTGauge',
-            ut.get_value()
-        )
+        def command(ut):
+            autopilot.mav.named_value_float_send(
+                int(time.time() * 1e3), # Unix time (milliseconds)
+                'UTGauge',
+                ut.get_value()
+            )
 
     with UTGauge() as ut:
         try:
