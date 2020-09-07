@@ -1,3 +1,6 @@
-# companion
+# companion-ZEV
 
-This repository is the Blue Robotics version of the [ArduPilot/companion](https://github.com/ArduPilot/companion) repository. This is the code that runs on the Raspberry Pi in the BlueROV2. Currently, this repository only provides an implementation for the Raspberry Pi Computer.
+This repository is the Insight Infrastructure version of the [bluerobotics/companion](https://github.com/bluerobotics/companion) repository. This is the code that runs on the Raspberry Pi in ZEV. Currently, this repository only provides an implementation for the Raspberry Pi Computer.
+
+Includes
+- `ut_read.py`
