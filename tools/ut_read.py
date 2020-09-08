@@ -58,16 +58,17 @@ class UTGauge(object):
         ''' Exit a context - end serial communication and clean up. '''
         self._serial.__exit__(*args)
 
-    def get_value(self, string_result=False):
-        ''' Get the next available reading, as a float or string. '''
+    def get_value(self, include_float=True):
+        ''' Get the next available reading, as a float and/or string. '''
         self._serial.read_until(b'\x01') # get to start of a sequence
         value = self._serial.read_until(b'\x17')[:-1] # end of the reading
         status = bytearray(value[0])[0]
         invalid = status & (1 << 0)
         if invalid:
-            if string_result:
-                return 'no reading'
-            return -1.0
+            ret = 'no reading'
+            if include_float:
+                ret = (-1.0, ret)
+            return ret
 
         # 1<<7 == 1, gauge type always 1
         high_resolution = status & (1 << 6)
@@ -87,19 +88,21 @@ class UTGauge(object):
             else:
                 out += value[2] + '.' + value[3]
         result = float(out) * self._conversion
-        if not string_result:
-            return result
-
-        return str(result) + ' ' + units[imperial] \
+        
+        ret = str(result) + ' ' + units[imperial] \
               + ' - ' + str(echo_count) + ' echoes'
+        if include_float:
+            ret = (result, ret)
+        return ret
 
 
 def wait_conn(autopilot):
     """ Sends a ping to develop UDP communication and waits for a response. """
     msg = None
+    global boot_time
     while not msg:
         autopilot.mav.ping_send(
-            int(time.time() * 1e6), # Unix time (microseconds)
+            int((time.time() - boot_time) * 1e6), # Unix time since boot (microseconds)
             0, # Ping number
             0, # Request ping of all systems
             0  # Request ping of all components
@@ -113,20 +116,25 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 2:
         # operating manually - print meaningful string output
-        command = lambda ut : print(ut.get_value(string_result=True))
+        def command(ut):
+            print(ut.get_value(include_float=False))
     else:
         # operating automatically - connect to autopilot and transmit readings
         from pymavlink import mavutil
+        boot_time = time.time()
         # establish connection on UDP port 9000
         autopilot = mavutil.mavlink_connection('udpout:0.0.0.0:9000')
         # wait for connection confirmation
         wait_conn(autopilot)
 
-        command = lambda ut : autopilot.mav.named_value_float_send(
-            int(time.time() * 1e3), # Unix time (milliseconds)
-            'UTGauge',
-            ut.get_value()
-        )
+        def command(ut):
+            value, message = ut.get_value()
+            autopilot.mav.named_value_float_send(
+                int((time.time() - boot_time) * 1e3), # Unix time since boot (milliseconds)
+                'UTGauge',
+                value
+            )
+            print(message)
 
     with UTGauge() as ut:
         try:
