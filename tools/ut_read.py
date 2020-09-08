@@ -89,7 +89,7 @@ class UTGauge(object):
                 out += value[2] + '.' + value[3]
         result = float(out) * self._conversion
         
-        ret = str(result) + ' ' + units[imperial] \
+        ret = str(result) + ' ' + self.units[imperial] \
               + ' - ' + str(echo_count) + ' echoes'
         if include_float:
             ret = (result, ret)
