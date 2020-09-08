@@ -40,6 +40,10 @@ fi
 
 # load gstreamer options
 gstOptions=$(tr '\n' ' ' < $HOME/gstreamer2.param)
+gstOptionsAux=$(tr '\n' ' ' < $HOME/gstreamer2_aux.param)
+
+# start auxiliary camera in a separate thread
+screen -dm -S video_aux bash -c "export LD_LIBRARY_PATH=/usr/local/lib && gst-launch 1.0 -v v4l2src do-timestamp=true $gstOptionsAux" &
 
 # make sure framesize and framerate are supported
 
