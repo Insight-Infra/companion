@@ -43,10 +43,10 @@ fi
 # load gstreamer options
 gstOptionsBR=$(tr '\n' ' ' < $HOME/gstreamer2_BR.param)
 gstOptionsBRT=$(tr '\n' ' ' < $HOME/gstreamer2_BRT.param)
-gstOptionsAHD=$(tr '\n' ' ' < $HOME/gstreamer2_AHD.param)
+# gstOptionsAHD=$(tr '\n' ' ' < $HOME/gstreamer2_AHD.param)
 
 # start auxiliary camera in a separate thread
-screen -dm -S video_ahd bash -c "export LD_LIBRARY_PATH=/usr/local/lib && gst-launch-1.0 -v v4l2src do-timestamp=true $gstOptionsAHD" &
+# screen -dm -S video_ahd bash -c "export LD_LIBRARY_PATH=/usr/local/lib && gst-launch-1.0 -v v4l2src do-timestamp=true $gstOptionsAHD" &
 
 # make sure framesize and framerate are supported
 
