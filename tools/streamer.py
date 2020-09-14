@@ -13,7 +13,7 @@ while True:
   if len(sys.argv) == 1:
     os.system(home + "/companion/scripts/start_video.sh $(cat /home/pi/vidformat.param)")
   else:
-    os.system(home + "/companion/scripts/start_video.sh " + sys.argv[1] + " " + sys.argv[2] + " " + sys.argv[3] + " " + sys.argv[4])
+    os.system(home + "/companion/scripts/start_video.sh " + " ".join(sys.argv[1:]))
   sleep(2)
 
 
