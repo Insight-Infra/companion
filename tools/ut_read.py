@@ -67,7 +67,7 @@ class UTGauge(object):
         if invalid:
             ret = 'no reading'
             if include_float:
-                ret = (1.0, ret)
+                ret = (-1.0, ret)
             return ret
 
         # 1<<7 == 1, gauge type always 1
