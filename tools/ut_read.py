@@ -67,7 +67,7 @@ class UTGauge(object):
         if invalid:
             ret = 'no reading'
             if include_float:
-                ret = (-1.0, ret)
+                ret = (1.0, ret)
             return ret
 
         # 1<<7 == 1, gauge type always 1
@@ -88,7 +88,7 @@ class UTGauge(object):
             else:
                 out += value[2] + '.' + value[3]
         result = float(out) * self._conversion
-        
+
         ret = str(result) + ' ' + self.units[imperial] \
               + ' - ' + str(echo_count) + ' echoes'
         if include_float:
@@ -96,18 +96,19 @@ class UTGauge(object):
         return ret
 
 
-def wait_conn(autopilot):
+def wait_conn(device):
     """ Sends a ping to develop UDP communication and waits for a response. """
     msg = None
     global boot_time
     while not msg:
-        autopilot.mav.ping_send(
-            int((time.time() - boot_time) * 1e6), # Unix time since boot (microseconds)
+        # boot_time = time.time()
+        device.mav.ping_send(
+            int((time.time()-boot_time) * 1e6), # Unix time since boot (microseconds)
             0, # Ping number
             0, # Request ping of all systems
             0  # Request ping of all components
         )
-        msg = autopilot.recv_match()
+        msg = device.recv_match()
         time.sleep(0.5)
 
 
@@ -123,18 +124,26 @@ if __name__ == '__main__':
         from pymavlink import mavutil
         boot_time = time.time()
         # establish connection on UDP port 9000
-        autopilot = mavutil.mavlink_connection('udpout:0.0.0.0:9000')
+        direction = 'udpout'
+        device_ip = '192.168.2.1'
+        port      = '14550'
+        params    = [direction, device_ip, port]
+        print('connecting to {1} via {0} on port {2}'.format(*params))
+        computer  = mavutil.mavlink_connection(':'.join(params), source_system=1)
+        print('waiting for confirmation...')
         # wait for connection confirmation
-        wait_conn(autopilot)
+        wait_conn(computer)
+        #autopilot.wait_heartbeat()
+        print('connection success!')
 
         def command(ut):
             value, message = ut.get_value()
-            autopilot.mav.named_value_float_send(
+            computer.mav.named_value_float_send(
                 int((time.time() - boot_time) * 1e3), # Unix time since boot (milliseconds)
                 'UTGauge',
                 value
             )
-            print(message)
+            print(message, value)
 
     with UTGauge() as ut:
         try:
