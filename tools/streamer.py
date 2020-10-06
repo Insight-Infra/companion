@@ -14,7 +14,4 @@ while True:
     os.system(home + "/companion/scripts/start_video.sh $(cat /home/pi/vidformat.param)")
   else:
     os.system(home + "/companion/scripts/start_video.sh " + sys.argv[1] + " " + sys.argv[2] + " " + sys.argv[3] + " " + sys.argv[4])
-  
-  # wait until one of the cameras fails
-  while not any(os.system('screen -ls | grep video_br{}'.format(video)) for video in 'ft'):
-    sleep(2)
+  sleep(2)
