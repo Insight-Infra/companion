@@ -41,7 +41,7 @@ if [ $? != 0 ]; then
 fi
 
 # load gstreamer options
-gstOptionsBR=$(tr '\n' ' ' < $HOME/gstreamer2_BR.param)
+gstOptionsBRF=$(tr '\n' ' ' < $HOME/gstreamer2_BRF.param)
 gstOptionsBRT=$(tr '\n' ' ' < $HOME/gstreamer2_BRT.param)
 # gstOptionsAHD=$(tr '\n' ' ' < $HOME/gstreamer2_AHD.param)
 
@@ -54,21 +54,21 @@ gstOptionsBRT=$(tr '\n' ' ' < $HOME/gstreamer2_BRT.param)
 v4l2-ctl --device $DEVICE --set-parm $FRAMERATE
 v4l2-ctl --device $DEVICE2 --set-parm $FRAMERATE
 
-echo "attempting device $DEVICE with width $WIDTH height $HEIGHT framerate $FRAMERATE options $gstOptions"
+echo "attempting device $DEVICE with width $WIDTH height $HEIGHT framerate $FRAMERATE options $gstOptionsBRF"
 gst-launch-1.0 -v v4l2src device=$DEVICE do-timestamp=true num-buffers=1 ! video/x-h264, width=$WIDTH, height=$HEIGHT, framerate=$FRAMERATE/1 ! h264parse ! queue ! rtph264pay config-interval=10 pt=96 ! fakesink
 
 if [ $? != 0 ]; then
     echo "Device is not capable of specified format, using device current settings instead"
-    screen -dm -S video_br bash -c "export LD_LIBRARY_PATH=/usr/local/lib/ && gst-launch-1.0 -v v4l2src device=$DEVICE do-timestamp=true ! video/x-h264 $gstOptionsBR"
+    screen -dm -S video_brf bash -c "export LD_LIBRARY_PATH=/usr/local/lib/ && gst-launch-1.0 -v v4l2src device=$DEVICE do-timestamp=true ! video/x-h264 $gstOptionsBRF"
     screen -S video_brt bash -c "export LD_LIBRARY_PATH=/usr/local/lib/ && gst-launch-1.0 -v v4l2src device=$DEVICE2 do-timestamp=true ! video/x-h264 $gstOptionsBRT"
 else
-    echo "starting devices ($DEVICE, $DEVICE2) with width $WIDTH height $HEIGHT framerate $FRAMERATE options ($gstOptionsBR, $gstOptionsBRT)"
-    screen -dm -S video_br bash -c "export LD_LIBRARY_PATH=/usr/local/lib/ && gst-launch-1.0 -v v4l2src device=$DEVICE do-timestamp=true ! video/x-h264, width=$WIDTH, height=$HEIGHT, framerate=$FRAMERATE/1 $gstOptionsBR"
+    echo "starting devices ($DEVICE, $DEVICE2) with width $WIDTH height $HEIGHT framerate $FRAMERATE options ($gstOptionsBRF, $gstOptionsBRT)"
+    screen -dm -S video_brf bash -c "export LD_LIBRARY_PATH=/usr/local/lib/ && gst-launch-1.0 -v v4l2src device=$DEVICE do-timestamp=true ! video/x-h264, width=$WIDTH, height=$HEIGHT, framerate=$FRAMERATE/1 $gstOptionsBR"
     screen -S video_brt bash -c "export LD_LIBRARY_PATH=/usr/local/lib/ && gst-launch-1.0 -v v4l2src device=$DEVICE2 do-timestamp=true ! video/x-h264, width=$WIDTH, height=$HEIGHT, framerate=$FRAMERATE/1 $gstOptionsBRT"
     # if we make it this far, it means the gst pipeline failed, so load the backup settings
     cp ~/vidformat.param.bak ~/vidformat.param && rm ~/vidformat.param.bak
 fi
 
 # cleanup
+screen -X -S video_brf quit
 screen -X -S video_brt quit
-screen -X -S video_br quit
