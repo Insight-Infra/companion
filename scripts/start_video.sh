@@ -70,5 +70,6 @@ else
 fi
 
 # cleanup
+# TODO: refactor so video streams can be restarted independently
 screen -X -S video_brf quit
 screen -X -S video_brt quit
