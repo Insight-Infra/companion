@@ -40,7 +40,6 @@ def device_has_screen(device):
     screen_name = screen_name_for_device(device)
     try:
         output = subprocess.check_output(["sudo", "-Au", "pi", "screen", "-ls"], universal_newlines=True)
-        return output.decode()
     except subprocess.CalledProcessError as e:
         if e.returncode == 1:
             output = e.output  # screen v4.2.x always gives exit code of 1 for 'screen -ls'
@@ -66,12 +65,14 @@ def create_device_screen(device, port):
         # Strip newline from output
         target_device = target_device.decode().split('\n')[0]
     except Exception as e:
-        print("Error reading symlink: %s" % e)
+        print("Error reading symlink:", e)
         return False
     path = os.path.dirname(os.path.abspath(__file__))
     screen_name = screen_name_for_device(device)
-    command = "sudo -H -u pi screen -dm -S %s %s/bridges -u 0.0.0.0:%s -p %s:2000000"  # Ignores EOF if it shows in the data in the serial sid
-    command = command % (screen_name, path, port, target_device)
+
+    # Ignores EOF if it shows in the data in the serial sid
+    command = f"sudo -H -u pi screen -dm -S {screen_name} {path}/bridges -u 0.0.0.0:{port} -p {target_device}:2000000"
+
     print("Launching: ", command)
     try:
         subprocess.check_output(command, shell=True)

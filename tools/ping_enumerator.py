@@ -37,7 +37,8 @@ class PingEnumerator:
         """
 
         try:
-            ping = PingDevice("/dev/serial/by-id/" + dev, 115200)
+            ping = PingDevice()
+            ping.connect_serial("/dev/serial/by-id/" + dev, 115200)
         except Exception as exception:
             print("An exception has occurred: ", exception)
             return None
