@@ -18,13 +18,11 @@
     "http-proxy": "^1.17.0",
     "jquery": "3.2.1",
     "network-js": "2.1.0",
-    "node-file-manager": "0.4.6",
-    "nodegit": "0.18.3",
     "socket.io": "1.7.3",
     "socket.io-file": "2.0.14",
     "socket.io-file-client": "2.0.121",
     "tracer": "0.8.9",
-    "v4l2camera": "git://github.com/jaxxzer/node-v4l2camera.git#799f6eda"
+    "v4l2camera": "git://github.com/jaxxzer/node-v4l2camera.git#a767a4c0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

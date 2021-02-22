@@ -1,0 +1,5 @@
+wifi_service.egg-info/PKG-INFO
+wifi_service.egg-info/SOURCES.txt
+wifi_service.egg-info/dependency_links.txt
+wifi_service.egg-info/requires.txt
+wifi_service.egg-info/top_level.txt
