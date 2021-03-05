@@ -2,4 +2,5 @@
 *.project
 br-webui/node_modules/*
 config/*
+*.DS_Store
 *.pyc
